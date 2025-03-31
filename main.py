@@ -2,6 +2,7 @@ import os
 import summary.extractor as extractor
 import summary.summarizer as summarizer
 import prompts.prompt as prompts
+import generate.generator as generate
 
 def run_summary(file_path, summary_type):
     print(f">>> [{summary_type}] 요약 시작...")
@@ -28,6 +29,8 @@ def run_summary(file_path, summary_type):
     print(f"- prompt_tokens: {usage.prompt_tokens}")
     print(f"- completion_tokens: {usage.completion_tokens}")
     print(f"- total_tokens: {usage.total_tokens}")
+    
+    generate.run_generation(summary, "문제 생성_단답형")
 
 if __name__ == "__main__":
     file_path = "data/영상처리.pdf"
