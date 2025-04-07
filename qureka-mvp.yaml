@@ -10,3 +10,5 @@ dependencies:
       - python-dotenv
       - pymupdf
       - python-pptx
+      - tiktoken
+      - typing-extensions
