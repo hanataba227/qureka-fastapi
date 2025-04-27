@@ -5,15 +5,16 @@ import tiktoken
 import fitz
 from pptx import Presentation
 
+# 환경 변수 로드
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
-# 최대 허용 토큰 수
+# 모델 설정
 MAX_USER_MESSAGE_TOKENS = 8000
 MODEL_NAME = "gpt-4o-mini"
 
-#pdf, pptx 파일에서 텍스트 추출
+# PDF에서 텍스트 추출
 def extract_text_from_pdf(file_path):
     text = ""
     with fitz.open(file_path) as doc:
@@ -21,6 +22,7 @@ def extract_text_from_pdf(file_path):
             text += page.get_text()
     return text
 
+# PPTX에서 텍스트 추출
 def extract_text_from_pptx(file_path):
     text = ""
     prs = Presentation(file_path)
@@ -55,60 +57,25 @@ def summarize_with_chatgpt(system_message, user_message):
     usage = completion.usage
     return summary, usage
 
-# 요약 및 문제 생성 모듈
-def run_summary(file_path, summary_type):
-    print(f">>> [{summary_type}] 요약 시작...")
-
-    ext = os.path.splitext(file_path)[-1].lower()
-    if ext == ".pdf":
-        content = extract_text_from_pdf(file_path)
-    elif ext == ".pptx":
-        content = extract_text_from_pptx(file_path)
-    else:
-        print("지원되지 않는 파일 형식입니다. PDF 또는 PPTX만 가능합니다.")
-        return
-
-    prompt = get_summary_prompt(summary_type, content)
-
-    if not prompt or not prompt["system"] or not prompt["user"]:
-        print("프롬프트 구성이 잘못되었습니다.")
-        return
-
-    summary, usage = summarize_with_chatgpt(prompt["system"], prompt["user"])
-
-    print("\n📘 요약 결과:\n")
-    print(summary)
-    print("\n📊 사용한 토큰 수:")
-    print(f"- prompt_tokens: {usage.prompt_tokens}")
-    print(f"- completion_tokens: {usage.completion_tokens}")
-    print(f"- total_tokens: {usage.total_tokens}")
-    
-    run_generation(summary, "문제 생성_n지 선다형")
-
-
 # 요약 프롬프트 구성
-def run_generation(summary_text, generation_type):
-    print(f">>> [{generation_type}] 문제 생성 시작...")
-
-    # 프롬프트 구성
-    prompt = get_summary_prompt(generation_type, summary_text)
-    if not prompt or not prompt["system"] or not prompt["user"]:
-        print("프롬프트 구성이 잘못되었습니다.")
-        return
-
-    # 문제 생성 요청
-    result, usage = summarize_with_chatgpt(prompt["system"], prompt["user"])
-
-    print("\n🧠 생성된 문제:\n")
-    print(result)
-    print("\n📊 사용한 토큰 수:")
-    print(f"- prompt_tokens: {usage.prompt_tokens}")
-    print(f"- completion_tokens: {usage.completion_tokens}")
-    print(f"- total_tokens: {usage.total_tokens}")
-
-    return result  
-
 def get_summary_prompt(type_name, content):
+    # 환경 변수에서 설정값 가져오기
+    domain = os.getenv("domain", "공학")
+    summary_level = os.getenv("summary_level", "대학생")
+    difficulty = os.getenv("difficulty", "대학생")
+    char_limit = os.getenv("char_limit", "500")
+    topic_count = os.getenv("topic_count", "2")
+    keyword_count = os.getenv("keyword_count", "3")
+    keywords = os.getenv("keywords", "기타,등등,ㄹㅇ")
+    question_count = os.getenv("question_count", "3")
+    choice_count = os.getenv("choice_count", "4")
+    choice_format = os.getenv("choice_format", "문장형")
+    arry_choice_count = os.getenv("arry_choice_count", "3")
+    blank_count = os.getenv("blank_count", "1")
+
+    if isinstance(keywords, str) and ',' in keywords:
+        keywords = keywords.split(',')
+    
     prompts = {
         "내용 요약_기본 요약": {
             "system": f"너는 {domain}에서 20년 경력을 지닌 요약 전문가로, 복잡한 개념도 학습자의 눈높이와 학습 목적에 맞는 콘텐츠로 재구성하는 데 특화되어 있다. ",
@@ -307,56 +274,3 @@ def get_summary_prompt(type_name, content):
     }
 
     return prompts.get(type_name, {"system": "", "user": ""})
-
-if __name__ == "__main__":
-    file_path = "data/영상처리_2주차.pdf"
-    summary_type = "내용 요약_목차 요약"
-
-    domain = "공학" #분야
-    summary_level = "대학생" #요약 수준
-    difficulty = "대학생 "#난이도
-    char_limit = 500 #글자 수
-    topic_count = 2 #주제 수
-    keyword_count = 3 #키워드 수
-    keywords = ["기타", "등등", "ㄹㅇ"] #키워드 리스트
-    question_count = 3 #문제 수
-    choice_count = 4 #보기 수
-    choice_format = "문장형" #보기 형식
-    arry_choice_count = 3 #배열 선택지 수
-    blank_count = 1 #빈칸 수
-    
-    run_summary(file_path, summary_type)
-    
-
-
-'''
-===공통 세부 설정===
-
-{분야} : 언어/과학/사회/경제/인문학/종교/철학/공학
-{요약 수준} : 고등학교/대학생
-{난이도} : 고등학생/대학생
-
-==요약 공통 세부 설정==
-{글자 수} : 200-500
-
-==주제 요약 세부 설정==
-{주제 수} : 1-4
-
-==키워드 요약 세부 설정==
-{키워드 수} : 3 
-{키워드} : 10자 이내
-
-
-===문제 생성 공통 세부 설정===
-{문제 수} : 1-5
-
-==N지 선다형 문제 생성 세부 설정==
-{보기 수} : 4-5
-{보기 형식} : 단답형/문장형
-
-==순서 배열형 문제 생성 세부 설정==
-{보기 수} : 3-6
-
-==빈칸형 문제 생성 세부 설정==
-{빈칸 수} : 1-2
-'''

@@ -12,3 +12,6 @@ dependencies:
       - python-pptx
       - tiktoken
       - typing-extensions
+      - fastapi
+      - uvicorn
+      - python-multipart
