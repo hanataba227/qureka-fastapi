@@ -27,32 +27,33 @@ app = FastAPI(
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=["http://localhost:5173", "*"],  # 프론트엔드 주소 명시적 추가
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+    expose_headers=["Content-Disposition"],
 )
 
 # 요청 모델 정의
 class SummaryRequest(BaseModel):
     summary_type: str
-    domain: str
-    summary_level: str
-    char_limit: int
-    topic_count: Optional[int]
-    keyword_count: Optional[int]
-    keywords: Optional[List[str]]
+    field: str = "모든 분야"
+    level: str = "비전공자"
+    sentence_count: int = 3
+    topic_count: Optional[int] = 1
+    keyword_count: Optional[int] = 0
+    keywords: Optional[List[str]] = None
     
 class GenerationRequest(BaseModel):
     generation_type: str
     summary_text: str
-    domain: str
-    difficulty: str
-    question_count: int
-    choice_count: Optional[int]
-    choice_format: Optional[str]
-    arry_choice_count: Optional[int]
-    blank_count: Optional[int]
+    field: str = "모든 분야"
+    level: str = "비전공자"
+    question_count: int = 3
+    choice_count: Optional[int] = 4
+    choice_format: Optional[str] = "단답형"
+    array_choice_count: Optional[int] = 3
+    blank_count: Optional[int] = 1
 
 @app.get("/")
 async def root():
@@ -62,11 +63,11 @@ async def root():
 async def summarize(
     file: UploadFile = File(...),
     summary_type: str = Form(...),
-    domain: str = Form("공학"),
-    summary_level: str = Form("대학생"),
-    char_limit: int = Form(500),
-    topic_count: Optional[int] = Form(2),
-    keyword_count: Optional[int] = Form(3),
+    field: str = Form("모든 분야"),
+    level: str = Form("비전공자"),
+    sentence_count: int = Form(3),
+    topic_count: Optional[int] = Form(1),
+    keyword_count: Optional[int] = Form(0),
     keywords: Optional[str] = Form(None)
 ):
     # 파일 임시 저장
@@ -87,12 +88,12 @@ async def summarize(
         
         # 전역 변수 설정 (get_summary_prompt에서 필요)
         global_vars = {
-            "domain": domain,
-            "summary_level": summary_level,
-            "char_limit": char_limit,
+            "field": field,
+            "level": level,
+            "sentence_count": sentence_count,
             "topic_count": topic_count,
             "keyword_count": keyword_count,
-            "keywords": keywords.split(",") if keywords else ["키워드1", "키워드2", "키워드3"]
+            "keywords": keywords.split(",")
         }
         
         # 환경 변수로 전역 변수 설정
@@ -126,12 +127,12 @@ async def generate(request: GenerationRequest):
     try:
         # 전역 변수 설정
         global_vars = {
-            "domain": request.domain,
-            "difficulty": request.difficulty,
+            "field": request.field,
+            "level": request.level,
             "question_count": request.question_count,
             "choice_count": request.choice_count,
             "choice_format": request.choice_format,
-            "arry_choice_count": request.arry_choice_count,
+            "array_choice_count": request.array_choice_count,
             "blank_count": request.blank_count
         }
         
