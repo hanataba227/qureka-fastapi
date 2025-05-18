@@ -12,10 +12,11 @@ import uvicorn
 from utils import (
     extract_text_from_pdf, 
     extract_text_from_pptx, 
-    truncate_by_tokens, 
     summarize_with_chatgpt,
-    get_summary_prompt
+    get_summary_prompt,
+    get_base_url
 )
+from settings import ALLOWED_ORIGINS, ALLOW_ALL_ORIGINS
 
 # FastAPI 앱 생성
 app = FastAPI(
@@ -24,50 +25,51 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS 설정
+# CORS 설정 - 통합된 버전
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "*"],  # 프론트엔드 주소 명시적 추가
+    allow_origins=["*"] if ALLOW_ALL_ORIGINS else ALLOWED_ORIGINS,  # 설정에 따라 출처 허용
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
-    expose_headers=["Content-Disposition"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=86400  # 프리플라이트 요청 캐싱 (24시간)
 )
 
 # 요청 모델 정의
 class SummaryRequest(BaseModel):
     summary_type: str
-    field: str = "모든 분야"
-    level: str = "비전공자"
-    sentence_count: int = 3
-    topic_count: Optional[int] = 1
-    keyword_count: Optional[int] = 0
+    field: str = "공학"
+    level: str = "대학생"
+    sentence_count: int = 500
+    topic_count: Optional[int] = 2
+    keyword_count: Optional[int] = 3
     keywords: Optional[List[str]] = None
     
 class GenerationRequest(BaseModel):
     generation_type: str
     summary_text: str
-    field: str = "모든 분야"
-    level: str = "비전공자"
+    field: str = "공학"
+    level: str = "대학생"
     question_count: int = 3
     choice_count: Optional[int] = 4
-    choice_format: Optional[str] = "단답형"
+    choice_format: Optional[str] = "문장형"
     array_choice_count: Optional[int] = 3
     blank_count: Optional[int] = 1
 
 @app.get("/")
 async def root():
-    return {"message": "Qureka API is running"}
+    return {"message": "Qureka API is running", "base_url": get_base_url()}
 
 @app.post("/api/summarize")
 async def summarize(
     file: UploadFile = File(...),
     summary_type: str = Form(...),
-    field: str = Form("모든 분야"),
-    level: str = Form("비전공자"),
-    sentence_count: int = Form(3),
-    topic_count: Optional[int] = Form(1),
-    keyword_count: Optional[int] = Form(0),
+    field: str = Form("공학"),
+    level: str = Form("전공자"),
+    sentence_count: int = Form(500),
+    topic_count: Optional[int] = Form(2),
+    keyword_count: Optional[int] = Form(3),
     keywords: Optional[str] = Form(None)
 ):
     # 파일 임시 저장
@@ -93,7 +95,7 @@ async def summarize(
             "sentence_count": sentence_count,
             "topic_count": topic_count,
             "keyword_count": keyword_count,
-            "keywords": keywords.split(",")
+            "keywords": keywords.split(",") if keywords else ["키워드1", "키워드2", "키워드3"]
         }
         
         # 환경 변수로 전역 변수 설정
