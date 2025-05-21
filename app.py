@@ -88,6 +88,10 @@ async def summarize(
         elif file_extension == ".pptx":
             content = extract_text_from_pptx(tmp_path)
         
+        # 텍스트 길이 확인
+        if len(content.strip()) < 200:
+            raise HTTPException(status_code=400, detail="파일에서 추출된 텍스트가 너무 짧습니다. 최소 200자 이상이어야 합니다.")
+        
         # 전역 변수 설정 (get_summary_prompt에서 필요)
         global_vars = {
             "field": field,
