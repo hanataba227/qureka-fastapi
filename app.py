@@ -69,7 +69,6 @@ async def summarize(
     level: str = Form("전공자"),
     sentence_count: int = Form(500),
     topic_count: Optional[int] = Form(2),
-    keyword_count: Optional[int] = Form(3),
     keywords: Optional[str] = Form(None)
 ):
     # 파일 임시 저장
@@ -98,7 +97,6 @@ async def summarize(
             "level": level,
             "sentence_count": sentence_count,
             "topic_count": topic_count,
-            "keyword_count": keyword_count,
             "keywords": keywords.split(",") if keywords else ["키워드1", "키워드2", "키워드3"]
         }
         

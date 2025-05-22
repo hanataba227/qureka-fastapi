@@ -67,7 +67,6 @@ def get_summary_prompt(type_name, content):
     level = os.getenv("level", "전공자")
     sentence_count = os.getenv("sentence_count", "500")
     topic_count = os.getenv("topic_count", "2")
-    keyword_count = os.getenv("keyword_count", "3")
     keywords = os.getenv("keywords", "기타,등등")
     question_count = os.getenv("question_count", "3")
     choice_count = os.getenv("choice_count", "4")
