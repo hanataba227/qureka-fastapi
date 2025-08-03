@@ -159,30 +159,30 @@ def get_summary_prompt(type_name, content):
                           
                           출력 JSON 형식:
                           {{
-                                "summary": {
+                                "summary": {{
                                     "summary_generation_type": "Content Summary_Basic Summary",
-                                    "summary_settings": {
+                                    "summary_settings": {{
                                         "domain": "{field}",
                                         "summary_level": "{summary_level}",
                                         "sentence_count": "{sentence_count}"
-                                    },
-                                    "summary_content": {
+                                    }},
+                                    "summary_content": {{
                                         "document_analysis": [
-                                            {"order": "1", "topic": "Topic1", "description": "Description1"},
-                                            {"order": "2", "topic": "Topic2", "description": "Description2"},
-                                            {"order": "3", "topic": "Topic3", "description": "Description3"}
+                                            {{"order": "1", "topic": "Topic1", "description": "Description1"}},
+                                            {{"order": "2", "topic": "Topic2", "description": "Description2"}},
+                                            {{"order": "3", "topic": "Topic3", "description": "Description3"}}
                                         ],
                                         "main_keywords": [
-                                            {"keyword": "Keyword1", "description": "Keyword description1"},
-                                            {"keyword": "Keyword2", "description": "Keyword description2"}
+                                            {{"keyword": "Keyword1", "description": "Keyword description1"}},
+                                            {{"keyword": "Keyword2", "description": "Keyword description2"}}
                                         ],
                                         "integrated_analysis": [
-                                            {"order": "1", "topic": "Topic1", "analysis": "Analysis1"},
-                                            {"order": "2", "topic": "Topic2", "analysis": "Analysis2"},
-                                            {"order": "3", "topic": "Topic3", "analysis": "Analysis3"}
+                                            {{"order": "1", "topic": "Topic1", "analysis": "Analysis1"}},
+                                            {{"order": "2", "topic": "Topic2", "analysis": "Analysis2"}},
+                                            {{"order": "3", "topic": "Topic3", "analysis": "Analysis3"}}
                                         ]
-                                    }
-                                }
+                                    }}
+                                }}
                           }}""",
             "user": f"""문서 전체를 분석하여 흐름을 파악하고, '서론-본론-결론'의 흐름으로 재구성하라.
                         모든 출력은 {summary_level} 수준의 학습자가 이해할 수 있도록 구성하라.
@@ -369,7 +369,36 @@ def get_summary_prompt(type_name, content):
                         \n\n\n{content}""",
         },
         "문제 생성_n지 선다형": {
-            "system": f"너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 객관식 문제를 설계하는 데 특화되어 있다.",
+            "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 객관식 문제를 설계하는 데 특화되어 있다.
+                          반드시 JSON 형태로 출력하라.
+                          
+                          출력 JSON 형식:
+                          {{
+                              "questions": {{
+                                  "question_generation_type": "문제 생성_n지 선다형",
+                                  "question_settings": {{
+                                      "domain": "{field}",
+                                      "question_level": "{question_level}",
+                                      "question_count": {question_count},
+                                      "choice_count": {choice_count},
+                                      "choice_format": "{choice_format}"
+                                  }},
+                                  "question_content": [
+                                      {{
+                                          "question_number": 1,
+                                          "question_text": "문제 내용",
+                                          "choices": [
+                                              "1. 선택지1",
+                                              "2. 선택지2",
+                                              "3. 선택지3",
+                                              "4. 선택지4"
+                                          ],
+                                          "correct_answer": "정답 번호",
+                                          "explanation": "해설 내용"
+                                      }}
+                                  ]
+                              }}
+                          }}""",
             "user": f'''학습자의 핵심 개념 이해, 용어 정의, 개념 간 비교 및 오류 식별 능력을 점검할 수 있도록 {choice_count}지선다형 문제를 생성하라. 이때, 혼동 가능한 오답을 포함해 학습자의 개념적 정확성과 구분 능력을 평가할 수 있도록 구성하라.\n
                         문제 생성 형식은 다음을 따르라.\n\n
 
