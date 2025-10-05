@@ -51,3 +51,4 @@ logs/
 # Local configuration
 instance/
 .webassets-cache
+data/
