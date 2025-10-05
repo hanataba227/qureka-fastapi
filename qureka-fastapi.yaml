@@ -1,4 +1,4 @@
-name: qureka-mvp
+name: qureka-fastapi
 channels:
   - defaults
   - conda-forge

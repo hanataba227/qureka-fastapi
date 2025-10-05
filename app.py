@@ -166,5 +166,77 @@ async def generate(request: GenerationRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# 파일 업로드 기반 문제 생성 엔드포인트
+@app.post("/api/generate-from-file")
+async def generate_from_file(
+    file: UploadFile = File(...),
+    generation_type: str = Form(...),
+    field: str = Form("공학"),
+    level: str = Form("대학생"),
+    question_count: int = Form(3),
+    choice_count: Optional[int] = Form(4),
+    choice_format: Optional[str] = Form("문장형"),
+    array_choice_count: Optional[int] = Form(3),
+    blank_count: Optional[int] = Form(1),
+):
+    """
+    업로드된 PDF 또는 PPTX 파일에서 텍스트를 추출하여 기존 /api/generate 로직으로 문제를 생성합니다.
+    summary_text 대신 파일에서 추출한 original_text를 사용합니다.
+    """
+    # 파일 확장자 확인 및 임시 저장
+    file_extension = Path(file.filename).suffix.lower()
+    if file_extension not in [".pdf", ".pptx"]:
+        raise HTTPException(status_code=400, detail="지원되지 않는 파일 형식입니다. PDF 또는 PPTX만 가능합니다.")
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=file_extension) as tmp:
+        shutil.copyfileobj(file.file, tmp)
+        tmp_path = tmp.name
+
+    try:
+        # 파일에서 원문 텍스트 추출
+        if file_extension == ".pdf":
+            original_text = extract_text_from_pdf(tmp_path)
+        else:  # .pptx
+            original_text = extract_text_from_pptx(tmp_path)
+
+        if not original_text or not original_text.strip():
+            raise HTTPException(status_code=400, detail="파일에서 텍스트를 추출할 수 없습니다.")
+
+        # /api/generate와 동일하게 환경 변수 설정
+        global_vars = {
+            "field": field,
+            "level": level,
+            "question_count": question_count,
+            "choice_count": choice_count,
+            "choice_format": choice_format,
+            "array_choice_count": array_choice_count,
+            "blank_count": blank_count,
+        }
+        for key, value in global_vars.items():
+            if value is not None:
+                os.environ[key] = str(value)
+
+        # 프롬프트 구성 및 문제 생성 실행
+        prompt = get_summary_prompt(generation_type, original_text)
+        if not prompt or not prompt.get("system") or not prompt.get("user"):
+            raise HTTPException(status_code=500, detail="프롬프트 구성이 잘못되었습니다.")
+
+        result, usage = summarize_with_chatgpt(prompt["system"], prompt["user"])
+
+        return JSONResponse(content={
+            "result": result,
+            "usage": {
+                "prompt_tokens": usage.prompt_tokens,
+                "completion_tokens": usage.completion_tokens,
+                "total_tokens": usage.total_tokens,
+            },
+        })
+    finally:
+        # 임시 파일 삭제
+        try:
+            os.unlink(tmp_path)
+        except Exception:
+            pass
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
