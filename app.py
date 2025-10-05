@@ -179,10 +179,6 @@ async def generate_from_file(
     array_choice_count: Optional[int] = Form(3),
     blank_count: Optional[int] = Form(1),
 ):
-    """
-    업로드된 PDF 또는 PPTX 파일에서 텍스트를 추출하여 기존 /api/generate 로직으로 문제를 생성합니다.
-    summary_text 대신 파일에서 추출한 original_text를 사용합니다.
-    """
     # 파일 확장자 확인 및 임시 저장
     file_extension = Path(file.filename).suffix.lower()
     if file_extension not in [".pdf", ".pptx"]:
