@@ -129,53 +129,37 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                         \n\n\n{content}'''
         },
         "문제 생성_빈칸 채우기형": {
-            "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 논리적 흐름, 절차적 지식의 이해를 평가하는 빈칸채우기형 문항을 설계하는 데 특화되어 있다.
+            "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 빈칸 채우기형 문항을 설계하는 데 특화되어 있다.
                           반드시 JSON 형태로 출력하라.
                           
-                          **중요: 각 문제는 정확히 {blank_count}개의 빈칸을 포함해야 한다.**
+                          **중요: 각 문제는 정확히 {blank_count}개의 빈칸을 포함하며, 4개의 선택지 중에서 {blank_count}개를 선택하는 방식이다.**
                           
-                          출력 JSON 형식 (빈칸이 {blank_count}개인 경우):
+                          출력 JSON 형식:
                           {{
                               "questions": [
                                   {{
                                       "question_text": "첫 번째 빈칸 ____ 과 두 번째 빈칸 ____ 을 포함한 문제 내용",
-                                      "blanks": [
-                                          {{
-                                              "id": 1,
-                                              "position": "____",
-                                              "correct_answer": "첫번째정답",
-                                              "options": [
-                                                  {{"id": "A", "text": "첫번째정답"}},
-                                                  {{"id": "B", "text": "선택지2"}},
-                                                  {{"id": "C", "text": "선택지3"}},
-                                                  {{"id": "D", "text": "선택지4"}}
-                                              ]
-                                          }},
-                                          {{
-                                              "id": 2,
-                                              "position": "____",
-                                              "correct_answer": "두번째정답",
-                                              "options": [
-                                                  {{"id": "A", "text": "두번째정답"}},
-                                                  {{"id": "B", "text": "선택지2"}},
-                                                  {{"id": "C", "text": "선택지3"}},
-                                                  {{"id": "D", "text": "선택지4"}}
-                                              ]
-                                          }}
+                                      "options": [
+                                          {{"id": "A", "text": "선택지1"}},
+                                          {{"id": "B", "text": "선택지2"}},
+                                          {{"id": "C", "text": "선택지3"}},
+                                          {{"id": "D", "text": "선택지4"}}
                                       ],
+                                      "correct_answers": ["A", "C"],
                                       "explanation": "해설 내용"
                                   }}
                               ]
                           }}
                           
                           **필수 규칙:**
-                          - blanks 배열에는 반드시 {blank_count}개의 객체가 포함되어야 함
-                          - question_text에는 반드시 {blank_count}개의 ____ 가 포함되어야 함
-                          - 각 빈칸의 correct_answer는 반드시 해당 빈칸의 options 중 하나와 일치해야 함""",
+                          - question_text: 반드시 {blank_count}개의 ____ 포함
+                          - options: 정확히 4개 (A, B, C, D)
+                          - correct_answers: {blank_count}개의 정답 id 배열 (예: ["A", "C"])
+                          - 각 빈칸에 해당하는 정답은 순서대로 correct_answers 배열에 포함""",
             "user": f'''위 JSON 형식에 맞춰 빈칸 채우기형 문제 {question_count}개를 생성하라.
                         반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
                         
-                        **중요: 각 문제는 정확히 {blank_count}개의 빈칸을 포함해야 한다.**
+                        **중요: 각 문제는 정확히 {blank_count}개의 빈칸을 포함하며, 4개 선택지 중 {blank_count}개를 선택한다.**
                         
                         문제 요구사항:
                         - 분야: {field} ({field_features(field)})
@@ -186,13 +170,12 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                         
                         출력 규칙:
                         - 반드시 JSON 형식만 출력
-                        - blanks 배열에 정확히 {blank_count}개의 객체 포함
-                        - question_text에 정확히 {blank_count}개의 ____ 포함
-                        - 각 빈칸마다 고유한 id (1, 2, 3, ..., {blank_count})
-                        - 각 빈칸마다 별도의 correct_answer와 4개의 options 제공
-                        - 모든 correct_answer는 반드시 해당 빈칸의 options에 포함되어야 함
-                        - 해설에서 언급하는 모든 답은 반드시 해당 빈칸의 options에 존재해야 함
-                        - 결론은 "따라서 정답은 (빈칸1: X, 빈칸2: Y, ...)" 형태로 작성
+                        - question_text에 정확히 {blank_count}개 ____ 포함
+                        - options는 정확히 4개 (A, B, C, D)
+                        - correct_answers는 {blank_count}개의 id 배열 (빈칸 순서대로)
+                        - 4개 선택지 중 {blank_count}개가 정답
+                        - 해설에는 각 빈칸에 어떤 선택지가 들어가는지 순서대로 설명
+                        - 결론은 "따라서 정답은 (첫 번째 빈칸: A, 두 번째 빈칸: C)" 형태로 작성
                         
                         \n\n\n{content}'''
         },
