@@ -7,7 +7,6 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
         "문제 생성_n지 선다형": {
             "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 객관식 문제를 설계하는 데 특화되어 있다.
                           반드시 JSON 형태로 출력하라.
-                          
                           출력 JSON 형식:
                           {{
                               "questions": [
@@ -47,6 +46,8 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
             "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 논리적 흐름, 절차적 지식의 이해를 평가하는 배열형 문항을 설계하는 데 특화되어 있다.
                           반드시 JSON 형태로 출력하라.
                           
+                          **중요: 다양한 순서 패턴을 생성하라. 항상 동일한 패턴(예: 1-3-2)만 반복하지 마라.**
+                          
                           출력 JSON 형식:
                           {{
                               "questions": [
@@ -61,9 +62,16 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                                       "explanation": "해설 내용"
                                   }}
                               ]
-                          }}""",
+                          }}
+                          
+                          **필수 규칙:**
+                          - items는 무작위로 섞인 순서로 제공
+                          - correct_sequence는 논리적으로 올바른 순서의 id 배열
+                          - 다양한 순서 조합 생성 (예: [1,2,3], [2,1,3], [3,1,2], [1,3,2], [2,3,1], [3,2,1] 등)""",
             "user": f'''위 JSON 형식에 맞춰 순서 배열형 문제 {question_count}개를 생성하라.
                         반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
+                        
+                        **중요: 다양한 순서 패턴을 생성하라. 특정 패턴(예: 1-3-2)에 편향되지 마라.**
                         
                         문제 요구사항:
                         - 분야: {field} ({field_features(field)})
@@ -75,9 +83,17 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                         출력 규칙:
                         - 반드시 JSON 형식만 출력
                         - 각 항목은 id와 text로 구성
-                        - correct_sequence는 올바른 순서의 id 배열
-                        - 해설에는 각 단계의 의미와 순서 논리 포함
+                        - items 배열: 순서가 섞여서 제공 (무작위 순서)
+                        - correct_sequence: 논리적으로 올바른 순서의 id 배열
+                        - 가능한 모든 순열을 고려하여 다양한 패턴 생성
+                        - 각 문제마다 서로 다른 순서 패턴을 사용하도록 노력
+                        - 해설에는 각 단계의 의미와 순서 논리를 명확히 설명
                         - 결론은 "따라서 정답은 X-Y-Z이다" 형태로 작성
+                        
+                        예시 순서 패턴 (참고용, 다양하게 생성):
+                        - 3개 항목: [1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]
+                        - 4개 항목: [1,2,3,4], [2,1,4,3], [3,4,1,2], [4,2,1,3] 등
+                        - 5개 항목: [1,3,5,2,4], [2,4,1,3,5], [5,1,3,2,4] 등
                         
                         \n\n\n{content}'''
         },
@@ -116,18 +132,31 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
             "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 논리적 흐름, 절차적 지식의 이해를 평가하는 빈칸채우기형 문항을 설계하는 데 특화되어 있다.
                           반드시 JSON 형태로 출력하라.
                           
-                          출력 JSON 형식:
+                          **중요: 각 문제는 정확히 {blank_count}개의 빈칸을 포함해야 한다.**
+                          
+                          출력 JSON 형식 (빈칸이 {blank_count}개인 경우):
                           {{
                               "questions": [
                                   {{
-                                      "question_text": "빈칸이 포함된 문제 내용",
+                                      "question_text": "첫 번째 빈칸 ____ 과 두 번째 빈칸 ____ 을 포함한 문제 내용",
                                       "blanks": [
                                           {{
                                               "id": 1,
                                               "position": "____",
-                                              "correct_answer": "정답",
+                                              "correct_answer": "첫번째정답",
                                               "options": [
-                                                  {{"id": "A", "text": "선택지1"}},
+                                                  {{"id": "A", "text": "첫번째정답"}},
+                                                  {{"id": "B", "text": "선택지2"}},
+                                                  {{"id": "C", "text": "선택지3"}},
+                                                  {{"id": "D", "text": "선택지4"}}
+                                              ]
+                                          }},
+                                          {{
+                                              "id": 2,
+                                              "position": "____",
+                                              "correct_answer": "두번째정답",
+                                              "options": [
+                                                  {{"id": "A", "text": "두번째정답"}},
                                                   {{"id": "B", "text": "선택지2"}},
                                                   {{"id": "C", "text": "선택지3"}},
                                                   {{"id": "D", "text": "선택지4"}}
@@ -137,23 +166,33 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                                       "explanation": "해설 내용"
                                   }}
                               ]
-                          }}""",
+                          }}
+                          
+                          **필수 규칙:**
+                          - blanks 배열에는 반드시 {blank_count}개의 객체가 포함되어야 함
+                          - question_text에는 반드시 {blank_count}개의 ____ 가 포함되어야 함
+                          - 각 빈칸의 correct_answer는 반드시 해당 빈칸의 options 중 하나와 일치해야 함""",
             "user": f'''위 JSON 형식에 맞춰 빈칸 채우기형 문제 {question_count}개를 생성하라.
                         반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
+                        
+                        **중요: 각 문제는 정확히 {blank_count}개의 빈칸을 포함해야 한다.**
                         
                         문제 요구사항:
                         - 분야: {field} ({field_features(field)})
                         - 학습자 수준: {question_level}
                         - 사고 구조: {user_question_level(question_level)}
                         - 문제 수: {question_count}개
-                        - 빈칸 수: {blank_count}개
+                        - 빈칸 수: {blank_count}개 (반드시 준수)
                         
                         출력 규칙:
                         - 반드시 JSON 형식만 출력
-                        - 빈칸은 ____ 형태로 표시
-                        - 각 빈칸은 id, position, correct_answer, options 포함
-                        - 해설에는 문맥 분석과 정답 근거 포함
-                        - 결론은 "따라서 정답은 X이다" 형태로 작성
+                        - blanks 배열에 정확히 {blank_count}개의 객체 포함
+                        - question_text에 정확히 {blank_count}개의 ____ 포함
+                        - 각 빈칸마다 고유한 id (1, 2, 3, ..., {blank_count})
+                        - 각 빈칸마다 별도의 correct_answer와 4개의 options 제공
+                        - 모든 correct_answer는 반드시 해당 빈칸의 options에 포함되어야 함
+                        - 해설에서 언급하는 모든 답은 반드시 해당 빈칸의 options에 존재해야 함
+                        - 결론은 "따라서 정답은 (빈칸1: X, 빈칸2: Y, ...)" 형태로 작성
                         
                         \n\n\n{content}'''
         },
