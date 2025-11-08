@@ -8,8 +8,8 @@ import tempfile
 import shutil
 from pathlib import Path
 import uvicorn
-
 from utils import (
+    
     extract_text_from_pdf, 
     extract_text_from_pptx, 
     summarize_with_chatgpt,
@@ -235,5 +235,5 @@ async def generate_from_file(
             pass
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
