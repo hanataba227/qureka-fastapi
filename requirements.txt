@@ -1,0 +1,9 @@
+openai==1.98.0
+python-dotenv==1.1.1
+pymupdf==1.26.3
+python-pptx==1.0.2
+tiktoken==0.9.0
+typing-extensions~=4.14.1
+fastapi==0.116.1
+uvicorn>=0.28.0,<0.29.0
+python-multipart==0.0.20
