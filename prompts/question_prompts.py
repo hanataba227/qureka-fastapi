@@ -13,12 +13,12 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                                   {{
                                       "question_text": "문제 내용",
                                       "options": [
-                                          {{"id": "A", "text": "선택지1"}},
-                                          {{"id": "B", "text": "선택지2"}},
-                                          {{"id": "C", "text": "선택지3"}},
-                                          {{"id": "D", "text": "선택지4"}}
+                                          {{"id": "1", "text": "선택지1"}},
+                                          {{"id": "2", "text": "선택지2"}},
+                                          {{"id": "3", "text": "선택지3"}},
+                                          {{"id": "4", "text": "선택지4"}}
                                       ],
-                                      "correct_answer": "C",
+                                      "correct_answer": "3",
                                       "explanation": "해설 내용"
                                   }}
                               ]
@@ -140,12 +140,12 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                                   {{
                                       "question_text": "첫 번째 빈칸 ____ 과 두 번째 빈칸 ____ 을 포함한 문제 내용",
                                       "options": [
-                                          {{"id": "A", "text": "선택지1"}},
-                                          {{"id": "B", "text": "선택지2"}},
-                                          {{"id": "C", "text": "선택지3"}},
-                                          {{"id": "D", "text": "선택지4"}}
+                                          {{"id": "1", "text": "선택지1"}},
+                                          {{"id": "2", "text": "선택지2"}},
+                                          {{"id": "3", "text": "선택지3"}},
+                                          {{"id": "4", "text": "선택지4"}}
                                       ],
-                                      "correct_answers": ["A", "C"],
+                                      "correct_answers": ["1", "3"],
                                       "explanation": "해설 내용"
                                   }}
                               ]
@@ -153,8 +153,8 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                           
                           **필수 규칙:**
                           - question_text: 반드시 {blank_count}개의 ____ 포함
-                          - options: 정확히 4개 (A, B, C, D)
-                          - correct_answers: {blank_count}개의 정답 id 배열 (예: ["A", "C"])
+                          - options: 정확히 4개 (1, 2, 3, 4)
+                          - correct_answers: {blank_count}개의 정답 id 배열 (예: ["1", "3"])
                           - 각 빈칸에 해당하는 정답은 순서대로 correct_answers 배열에 포함""",
             "user": f'''위 JSON 형식에 맞춰 빈칸 채우기형 문제 {question_count}개를 생성하라.
                         반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
@@ -171,11 +171,11 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                         출력 규칙:
                         - 반드시 JSON 형식만 출력
                         - question_text에 정확히 {blank_count}개 ____ 포함
-                        - options는 정확히 4개 (A, B, C, D)
+                        - options는 정확히 4개 (1, 2, 3, 4)
                         - correct_answers는 {blank_count}개의 id 배열 (빈칸 순서대로)
                         - 4개 선택지 중 {blank_count}개가 정답
                         - 해설에는 각 빈칸에 어떤 선택지가 들어가는지 순서대로 설명
-                        - 결론은 "따라서 정답은 (첫 번째 빈칸: A, 두 번째 빈칸: C)" 형태로 작성
+                        - 결론은 "따라서 정답은 (첫 번째 빈칸: 1, 두 번째 빈칸: 3)" 형태로 작성
                         
                         \n\n\n{content}'''
         },
