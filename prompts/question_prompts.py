@@ -183,18 +183,24 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
             "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 단답형 문항을 설계하는 데 특화되어 있다.
                           반드시 JSON 형태로 출력하라.
                           
+                          **중요: 정답은 반드시 한 단어 또는 짧은 용어(2-3 단어)로 제한한다.**
+                          
                           출력 JSON 형식:
                           {{
                               "questions": [
                                   {{
                                       "question_text": "문제 내용",
-                                      "correct_answer": "주요 정답",
-                                      "alternative_answers": ["대체답안1", "대체답안2"],
+                                      "correct_answer": "단일 용어",
+                                      "alternative_answers": ["동의어1", "동의어2"],
                                       "case_sensitive": false,
                                       "explanation": "해설 내용"
                                   }}
                               ]
-                          }}""",
+                          }}
+                          
+                          **정답 형식 예시:**
+                          - 좋은 예: "제2정규형", "캡슐화", "HTTP", "이진 탐색"
+                          - 나쁜 예: "데이터를 보호하는 것", "코드의 재사용성", "관계형 데이터베이스의 정규화 과정" """,
             "user": f'''위 JSON 형식에 맞춰 단답형 문제 {question_count}개를 생성하라.
                         반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
                         
@@ -204,12 +210,22 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                         - 사고 구조: {user_question_level(question_level)}
                         - 문제 수: {question_count}개
                         
+                        **정답 작성 규칙 (필수):**
+                        - correct_answer: 반드시 한 단어 또는 2-3 단어 이내의 짧은 용어 (예: "제2정규형", "캡슐화", "이진 탐색")
+                        - 문장, 구절, 설명문은 절대 금지 (예: "데이터를 보호하는 것" ✗)
+                        - 전문 용어, 개념명, 기술명 등 명사형 답안으로 작성
+                        - 마침표, 조사(은/는/이/가) 등 불필요한 요소 제거
+                        
                         출력 규칙:
-                        - question_text: 문제 내용을 명확히 제시
-                        - correct_answer: 주요 정답 (단어나 구로 구성, 마침표 없이)
-                        - alternative_answers: 동의어나 대체 가능한 정답들 (2-3개)
+                        - question_text: 명확한 단답형 질문 (예: "~은 무엇인가?", "~를 무엇이라 하는가?")
+                        - alternative_answers: 동의어나 대체 가능한 짧은 용어들 (각각 1-3 단어 이내)
                         - case_sensitive: false (대소문자 구분 안함)
-                        - explanation: 정답 근거, 개념 정의, 오개념 구분 포함
+                        - explanation: 정답 용어의 정의, 개념 설명, 관련 내용 포함
+                        
+                        **정답 예시:**
+                        예시 1) 질문: "이행 함수 종속을 제거하는 정규형은?" → 정답: "제2정규형"
+                        예시 2) 질문: "데이터를 보호하고 인터페이스로 접근하는 OOP 원리는?" → 정답: "캡슐화"
+                        예시 3) 질문: "정렬된 배열에서 O(log n) 시간에 탐색하는 알고리즘은?" → 정답: "이진 탐색"
                         
                         \n\n\n{content}'''
         },
