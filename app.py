@@ -198,6 +198,10 @@ async def generate_from_file(
         if not original_text or not original_text.strip():
             raise HTTPException(status_code=400, detail="파일에서 텍스트를 추출할 수 없습니다.")
 
+        # 텍스트 길이 확인
+        if len(original_text.strip()) < 200:
+            raise HTTPException(status_code=400, detail="파일에서 추출된 텍스트가 너무 짧습니다. 최소 200자 이상이어야 합니다.")
+
         # /api/generate와 동일하게 환경 변수 설정
         global_vars = {
             "field": field,
