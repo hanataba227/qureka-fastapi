@@ -145,7 +145,7 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                                           {{"id": "3", "text": "선택지3"}},
                                           {{"id": "4", "text": "선택지4"}}
                                       ],
-                                      "correct_answers": ["1", "3"],
+                                      "correct_answers": ["선택지1", "선택지3"],
                                       "explanation": "해설 내용"
                                   }}
                               ]
@@ -154,7 +154,7 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                           **필수 규칙:**
                           - question_text: 반드시 {blank_count}개의 ____ 포함
                           - options: 정확히 4개 (1, 2, 3, 4)
-                          - correct_answers: {blank_count}개의 정답 id 배열 (예: ["1", "3"])
+                          - correct_answers: {blank_count}개의 정답 text 배열 (예: ["선택지1", "선택지3"])
                           - 각 빈칸에 해당하는 정답은 순서대로 correct_answers 배열에 포함""",
             "user": f'''위 JSON 형식에 맞춰 빈칸 채우기형 문제 {question_count}개를 생성하라.
                         반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
