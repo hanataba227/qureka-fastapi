@@ -6,7 +6,9 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
     prompts = {
         "문제 생성_n지 선다형": {
             "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 객관식 문제를 설계하는 데 특화되어 있다.
-                          반드시 JSON 형태로 출력하라.
+                          
+                          **절대 규칙: 순수 JSON만 출력하라. "json", "```", 설명문, 주석 등 JSON 외 어떤 텍스트도 출력 금지.**
+                          
                           출력 JSON 형식:
                           {{
                               "questions": [
@@ -24,7 +26,12 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                               ]
                           }}""",
             "user": f'''위 JSON 형식에 맞춰 {choice_count}지선다형 문제 {question_count}개를 생성하라.
-                        반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
+                        
+                        **출력 형식 엄수:**
+                        - 순수 JSON만 출력 (첫 글자는 {{, 마지막 글자는 }})
+                        - "json", "```json", "```" 등의 마크다운 코드 블록 표시 금지
+                        - "여기 결과입니다", "생성된 문제입니다" 등의 설명문 금지
+                        - 주석이나 추가 텍스트 일체 금지
                         
                         문제 요구사항:
                         - 분야: {field} ({field_features(field)})
@@ -44,7 +51,8 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
         },
         "문제 생성_순서 배열형": {
             "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 논리적 흐름, 절차적 지식의 이해를 평가하는 배열형 문항을 설계하는 데 특화되어 있다.
-                          반드시 JSON 형태로 출력하라.
+                          
+                          **절대 규칙: 순수 JSON만 출력하라. "json", "```", 설명문, 주석 등 JSON 외 어떤 텍스트도 출력 금지.**
                           
                           **중요: 다양한 순서 패턴을 생성하라. 항상 동일한 패턴(예: 1-3-2)만 반복하지 마라.**
                           
@@ -69,7 +77,12 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                           - correct_sequence는 논리적으로 올바른 순서의 id 배열
                           - 다양한 순서 조합 생성 (예: [1,2,3], [2,1,3], [3,1,2], [1,3,2], [2,3,1], [3,2,1] 등)""",
             "user": f'''위 JSON 형식에 맞춰 순서 배열형 문제 {question_count}개를 생성하라.
-                        반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
+                        
+                        **출력 형식 엄수:**
+                        - 순수 JSON만 출력 (첫 글자는 {{, 마지막 글자는 }})
+                        - "json", "```json", "```" 등의 마크다운 코드 블록 표시 금지
+                        - "여기 결과입니다", "생성된 문제입니다" 등의 설명문 금지
+                        - 주석이나 추가 텍스트 일체 금지
                         
                         **중요: 다양한 순서 패턴을 생성하라. 특정 패턴(예: 1-3-2)에 편향되지 마라.**
                         
@@ -99,7 +112,8 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
         },
         "문제 생성_참거짓형": {
             "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 논리적 흐름, 절차적 지식의 이해를 평가하는 참거짓형 문항을 설계하는 데 특화되어 있다.
-                          반드시 JSON 형태로 출력하라.
+                          
+                          **절대 규칙: 순수 JSON만 출력하라. "json", "```", 설명문, 주석 등 JSON 외 어떤 텍스트도 출력 금지.**
                           
                           출력 JSON 형식:
                           {{
@@ -112,7 +126,12 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                               ]
                           }}""",
             "user": f'''위 JSON 형식에 맞춰 참거짓형 문제 {question_count}개를 생성하라.
-                        반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
+                        
+                        **출력 형식 엄수:**
+                        - 순수 JSON만 출력 (첫 글자는 {{, 마지막 글자는 }})
+                        - "json", "```json", "```" 등의 마크다운 코드 블록 표시 금지
+                        - "여기 결과입니다", "생성된 문제입니다" 등의 설명문 금지
+                        - 주석이나 추가 텍스트 일체 금지
                         
                         문제 요구사항:
                         - 분야: {field} ({field_features(field)})
@@ -130,7 +149,8 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
         },
         "문제 생성_빈칸 채우기형": {
             "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 빈칸 채우기형 문항을 설계하는 데 특화되어 있다.
-                          반드시 JSON 형태로 출력하라.
+                          
+                          **절대 규칙: 순수 JSON만 출력하라. "json", "```", 설명문, 주석 등 JSON 외 어떤 텍스트도 출력 금지.**
                           
                           **중요: 각 문제는 정확히 {blank_count}개의 빈칸을 포함하며, 4개의 선택지 중에서 {blank_count}개를 선택하는 방식이다.**
                           
@@ -157,7 +177,12 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                           - correct_answers: {blank_count}개의 정답 text 배열 (예: ["선택지1", "선택지3"])
                           - 각 빈칸에 해당하는 정답은 순서대로 correct_answers 배열에 포함""",
             "user": f'''위 JSON 형식에 맞춰 빈칸 채우기형 문제 {question_count}개를 생성하라.
-                        반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
+                        
+                        **출력 형식 엄수:**
+                        - 순수 JSON만 출력 (첫 글자는 {{, 마지막 글자는 }})
+                        - "json", "```json", "```" 등의 마크다운 코드 블록 표시 금지
+                        - "여기 결과입니다", "생성된 문제입니다" 등의 설명문 금지
+                        - 주석이나 추가 텍스트 일체 금지
                         
                         **중요: 각 문제는 정확히 {blank_count}개의 빈칸을 포함하며, 4개 선택지 중 {blank_count}개를 선택한다.**
                         
@@ -181,7 +206,8 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
         },
         "문제 생성_단답형": {
             "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 단답형 문항을 설계하는 데 특화되어 있다.
-                          반드시 JSON 형태로 출력하라.
+                          
+                          **절대 규칙: 순수 JSON만 출력하라. "json", "```", 설명문, 주석 등 JSON 외 어떤 텍스트도 출력 금지.**
                           
                           **중요: 정답은 반드시 한 단어 또는 짧은 용어(2-3 단어)로 제한한다.**
                           
@@ -202,7 +228,12 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                           - 좋은 예: "제2정규형", "캡슐화", "HTTP", "이진 탐색"
                           - 나쁜 예: "데이터를 보호하는 것", "코드의 재사용성", "관계형 데이터베이스의 정규화 과정" """,
             "user": f'''위 JSON 형식에 맞춰 단답형 문제 {question_count}개를 생성하라.
-                        반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
+                        
+                        **출력 형식 엄수:**
+                        - 순수 JSON만 출력 (첫 글자는 {{, 마지막 글자는 }})
+                        - "json", "```json", "```" 등의 마크다운 코드 블록 표시 금지
+                        - "여기 결과입니다", "생성된 문제입니다" 등의 설명문 금지
+                        - 주석이나 추가 텍스트 일체 금지
                         
                         문제 요구사항:
                         - 분야: {field} ({field_features(field)})
@@ -231,7 +262,8 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
         },
         "문제 생성_서술형": {
             "system": f"""너는 {field}에서 20년 경력을 지닌 평가 설계 전문가로, {question_level} 수준의 학습자를 위한 서술형 문항을 설계하는 데 특화되어 있다.
-                          반드시 JSON 형태로 출력하라.
+                          
+                          **절대 규칙: 순수 JSON만 출력하라. "json", "```", 설명문, 주석 등 JSON 외 어떤 텍스트도 출력 금지.**
                           
                           출력 JSON 형식:
                           {{
@@ -245,7 +277,12 @@ def get_question_prompts(field, question_level, question_count, choice_count, ch
                               ]
                           }}""",
             "user": f'''위 JSON 형식에 맞춰 서술형 문제 {question_count}개를 생성하라.
-                        반드시 JSON 형식으로만 출력하고, 추가 설명이나 텍스트는 포함하지 마라.
+                        
+                        **출력 형식 엄수:**
+                        - 순수 JSON만 출력 (첫 글자는 {{, 마지막 글자는 }})
+                        - "json", "```json", "```" 등의 마크다운 코드 블록 표시 금지
+                        - "여기 결과입니다", "생성된 문제입니다" 등의 설명문 금지
+                        - 주석이나 추가 텍스트 일체 금지
                         
                         문제 요구사항:
                         - 분야: {field} ({field_features(field)})
