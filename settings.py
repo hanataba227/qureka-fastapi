@@ -17,7 +17,7 @@ NGROK_BACKEND_URL = os.getenv("NGROK_BACKEND_URL", "")
 NGROK_FRONTEND_URL = os.getenv("NGROK_FRONTEND_URL", "")
 
 # 계산된 설정
-BASE_URL = NGROK_BACKEND_URL if USE_NGROK and NGROK_BACKEND_URL else "http://localhost:8000"
+BASE_URL = os.getenv("BASE_URL", "https://qureka-fastapi.onrender.com")
 
 # CORS 설정
 ALLOWED_ORIGINS: List[str] = [
